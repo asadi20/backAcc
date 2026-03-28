@@ -8,6 +8,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('accounting')->group(function () {
+Route::prefix('accounting/accounts')->group(function () {
     Route::resource('detail-account-types', DetailAccountTypeController::class);
 });
