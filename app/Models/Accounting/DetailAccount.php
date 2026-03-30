@@ -32,4 +32,9 @@ class DetailAccount extends Model
         return $this->belongsTo(DetailAccountType::class, 'type_id');
     }
 
+    public function lines()
+    {
+        return $this->hasMany(JournalEntryLine::class);
+    }
+
 }
