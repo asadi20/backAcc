@@ -20,4 +20,9 @@ class ChartOfAccount extends Model
         'account_type_id',
         'parent_id'
     ];
+
+    public function lines()
+    {
+        return $this->hasMany(JournalEntryLine::class);
+    }
 }
