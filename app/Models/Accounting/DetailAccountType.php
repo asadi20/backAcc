@@ -21,4 +21,9 @@ class DetailAccountType extends Model
     {
         return $this->hasMany(DetailAccount::class, 'type_id');
     }
+
+    public function chartOfAccounts()
+    {
+        return $this->belongsToMany(ChartOfAccount::class, 'coa_detail_types', 'type_id', 'account_id');
+    }
 }
