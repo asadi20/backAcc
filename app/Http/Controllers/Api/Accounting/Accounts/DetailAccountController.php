@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Accounting\Accounts;
 
 use App\Http\Controllers\Controller;
+use App\Models\Accounting\ChartOfAccount;
 use App\Models\Accounting\DetailAccount;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -91,5 +92,25 @@ class DetailAccountController extends Controller
             ]
         ]);
 
+    }
+
+    public function getBySubLedger($subLedgerId)
+    {
+        $type_ids = ChartOfAccount::where('level', 2)
+            ->with('detailAccountTypes')
+            ->findOrFail($subLedgerId)
+            ->detailAccountTypes()
+            ->pluck('coa_detail_types.id');
+
+        $details = DetailAccount::whereIn('type_id', $type_ids)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'detail accounts by subLedgerId retrived successfully.',
+            'data' => $details,
+            'meta' => [
+                'timestamp' => now()
+            ]
+        ]);
     }
 }
