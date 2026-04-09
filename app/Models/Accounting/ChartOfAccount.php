@@ -25,4 +25,9 @@ class ChartOfAccount extends Model
     {
         return $this->hasMany(JournalEntryLine::class);
     }
+
+    public function detailAccountTypes()
+    {
+        return $this->belongsToMany(DetailAccountType::class, 'coa_detail_types','account_id','type_id');
+    }
 }
