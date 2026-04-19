@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Accounting\Accounts;
 
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\ChartOfAccount;
+use App\Models\Accounting\CoaDetailType;
 use App\Models\Accounting\DetailAccount;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -100,7 +101,7 @@ class DetailAccountController extends Controller
             ->with('detailAccountTypes')
             ->findOrFail($subLedgerId)
             ->detailAccountTypes()
-            ->pluck('coa_detail_types.id');
+            ->pluck('coa_detail_types.type_id');
 
         $details = DetailAccount::whereIn('type_id', $type_ids)->get();
 
@@ -108,6 +109,19 @@ class DetailAccountController extends Controller
             'success' => true,
             'message' => 'detail accounts by subLedgerId retrived successfully.',
             'data' => $details,
+            'meta' => [
+                'timestamp' => now()
+            ]
+        ]);
+    }
+
+    public function getAllSubWithTypeLinks()
+    {
+        $links = CoaDetailType::with(['account:id,code,name', 'detail_type:id,code,name'])->get();
+        return response()->json([
+            'success' => true,
+            'message' => 'detail account by subLedgerId retrived successfully.',
+            'data' => $links,
             'meta' => [
                 'timestamp' => now()
             ]
