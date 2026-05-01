@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Accounting\Accounts\DetailAccountTypeController;
 use App\Http\Controllers\Api\Accounting\JournalEntries\JournalEntryController;
 use App\Http\Controllers\Api\RBAC\PermissionController;
 use App\Http\Controllers\Api\RBAC\RoleController;
+use App\Http\Controllers\Api\RBAC\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,4 +32,5 @@ Route::prefix('accounting/journal')->group(function () {
 Route::prefix('rbac')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+    Route::resource('users', UserController::class);
 });
