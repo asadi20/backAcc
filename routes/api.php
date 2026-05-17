@@ -33,4 +33,5 @@ Route::prefix('rbac')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
+    Route::get('/users/{id}/roles',[UserController::class,'getRolesByUserId']);
 });
