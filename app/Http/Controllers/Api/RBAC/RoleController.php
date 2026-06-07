@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\RBAC;
 
 use App\Http\Controllers\Controller;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -20,13 +22,13 @@ class RoleController extends Controller
         ], 200);
     }
 
-    public function store(Request $requets)
+    public function store(Request $request)
     {
-        $validated = $requets->validate([
+        $validated = $request->validate([
             'name' => [
                 'required',
-                Rule::unique('roles')->where(function ($query) use ($requets) {
-                    return $query->where('guard_name', $requets->guard_name);
+                Rule::unique('roles')->where(function ($query) use ($request) {
+                    return $query->where('guard_name', $request->guard_name);
                 }),
             ],
             'guard_name' => 'required|string'
@@ -39,5 +41,64 @@ class RoleController extends Controller
             'data' => $newRole,
             'message' => 'New Role added to system.'
         ], 201);
+    }
+
+    public function getRolePermsByRoleId($id)
+    {
+        $rolePerms = Role::with('permissions')->find($id);
+        $perms = Permission::all();
+
+        $res = [
+            'rolePerms' => $rolePerms,
+            'perms' => $perms
+        ];
+
+        return response()->json([
+            'message' => 'requested role with all related permissions are retrived successfully.',
+            'data' => $res,
+            'errors' => null
+        ], 200);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'guard_name' => 'required|string',
+            'permIds' => 'array',
+            'permIds.*' => 'exists:permissions,id'
+        ]);
+
+        try {
+            $role = DB::transaction(function () use ($validated, $id) {
+                $role = Role::findOrFail($id);
+                // 1. update Role with validated $request array
+                $role->update([
+                    'name' => $validated['name'],
+                    'guard_name' => $validated['guard_name']
+                ]);
+                // 2.update permissions if exists.
+                if (isset($validated['permIds'])) {
+                    $role->syncPermissions($validated['permIds']);
+                }
+                // 3.!! return update Model not a response
+                return $role->load('permissions');
+            });
+            // 4.return a response
+            return response()->json([
+                'success' => true,
+                'message' => 'role and related permissions updated successfully',
+                'data' => $role
+            ], 200);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'faied to update role with related permissions',
+                'error' => $e->getMessage()
+            ]);
+        }
+
+
     }
 }
