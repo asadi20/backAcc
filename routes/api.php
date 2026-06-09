@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Accounting\Accounts\CoaDetailTypeController;
 use App\Http\Controllers\Api\Accounting\Accounts\DetailAccountController;
 use App\Http\Controllers\Api\Accounting\Accounts\DetailAccountTypeController;
 use App\Http\Controllers\Api\Accounting\JournalEntries\JournalEntryController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\RBAC\PermissionController;
 use App\Http\Controllers\Api\RBAC\RoleController;
 use App\Http\Controllers\Api\RBAC\UserController;
@@ -35,4 +36,8 @@ Route::prefix('rbac')->group(function () {
     Route::resource('users', UserController::class);
     Route::get('/users/{id}/roles',[UserController::class,'getRolesByUserId']);
     Route::get('/role/{id}/permissions',[RoleController::class,'getRolePermsByRoleId']);
+});
+
+Route::prefix('auth')->group(function () {
+    Route::post('login', [AuthController::class,'login']);
 });
