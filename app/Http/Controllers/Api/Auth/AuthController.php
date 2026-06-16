@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -19,7 +22,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             // for session fixation
             $request->session()->regenerate();
-            
+
             return response()->json([
                 'user' => $request->user(),
                 'success' => true,
@@ -32,5 +35,49 @@ class AuthController extends Controller
         throw ValidationException::withMessages([
             'user name' => 'error in validation with requested inputs,'
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        try {
+            $userData = $request->validate([
+                'user_name' => 'required|string|unique:users,user_name',
+                'email' => 'email|string|required|unique:users,email',
+                'name' => 'required|string',
+                'password' => 'required|string|min:6'
+            ]);
+
+            $user = User::create([
+                'user_name' => $userData['user_name'],
+                'email' => $userData['email'],
+                'name' => $userData['name'],
+                'password' => Hash::make($userData['password'])
+            ]);
+
+            // auto login after successful registration.
+            Auth::login($user);
+
+            // session fixation
+            $request->session()->regenerate();
+
+            return response()->json([
+                'message' => 'You have been successfully register to this system.',
+                'data' => $user,
+                'error' => null
+            ], 201);
+            
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'data' => null,
+                'error' => $e->errors()
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'something went wrong!',
+                'data' => null,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
