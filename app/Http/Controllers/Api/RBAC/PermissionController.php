@@ -15,7 +15,7 @@ class PermissionController extends Controller
         return response()->json([
             'success' => true,
             'data' => $perms,
-            'message' => 'All permsissions retrived successfully.'
+            'message' => 'All permissions retrieved successfully.'
         ], 200);
     }
 
@@ -45,21 +45,32 @@ class PermissionController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $perm,
-                'message' => 'requested permission retrived successfully.',
+                'message' => 'requested permission retrieved successfully.',
             ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'data' => null,
+            'message' => 'Permission not found.'
+        ], 404);
     }
 
     public function update(Request $request, $id)
     {
+        $perm = Permission::findOrFail($id);
+
         $validated = $request->validate([
-            'name' => 'string|required|unique,permissions.id',
+            'name' => 'string|required|unique:permissions,name,' . $id,
             'guard_name' => 'string|required'
         ]);
 
-        $response = Permission::update($validated);
+        $perm->update($validated);
 
-        return $response;
-
+        return response()->json([
+            'success' => true,
+            'data' => $perm,
+            'message' => 'permission updated successfully.',
+        ], 200);
     }
 }
