@@ -9,9 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
+    public function show(Request $request)
+    {
+        return new UserResource($request->user());
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -26,7 +32,7 @@ class AuthController extends Controller
             return response()->json([
                 'user' => $request->user(),
                 'success' => true,
-                'message' => 'login successfull',
+                'message' => 'login successful',
                 'error' => null
             ]);
 
