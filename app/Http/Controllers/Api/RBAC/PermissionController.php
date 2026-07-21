@@ -22,10 +22,12 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            Rule::unique('permissions')->where(function ($query) use ($request) {
-                return $query->where('guard_name', $request->guard_name);
-            }),
+            'name' => [
+                'required',
+                Rule::unique('permissions')->where(function ($query) use ($request) {
+                    return $query->where('guard_name', $request->guard_name);
+                }),
+            ],
             'guard_name' => 'required|string'
         ]);
 
