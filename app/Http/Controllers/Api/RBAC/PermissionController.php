@@ -41,19 +41,11 @@ class PermissionController extends Controller
     public function show($id)
     {
         $perm = Permission::findOrFail($id);
-        if ($perm) {
-            return response()->json([
-                'success' => true,
-                'data' => $perm,
-                'message' => 'requested permission retrieved successfully.',
-            ]);
-        }
-
         return response()->json([
-            'success' => false,
-            'data' => null,
-            'message' => 'Permission not found.'
-        ], 404);
+            'success' => true,
+            'data' => $perm,
+            'message' => 'requested permission retrieved successfully.',
+        ]);
     }
 
     public function update(Request $request, $id)
